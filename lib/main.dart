@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:image_music/providers/merge_provider.dart';
-import 'package:image_music/screens/home_screen.dart';
 import 'package:provider/provider.dart';
+
+import 'merge_multimedia/home_screen.dart';
+import 'merge_multimedia/providers/merge_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

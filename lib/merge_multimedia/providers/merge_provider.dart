@@ -1,57 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:image_music/common/constants.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:video_player/video_player.dart';
-import 'package:video_trimmer/video_trimmer.dart';
 
 class MergeProvider with ChangeNotifier {
   bool loading = false, isPlaying = false;
   dynamic limit = 10;
   late double startTime = 0, endTime = 10;
 
-  // late VideoPlayerController controller =
-  //     VideoPlayerController.asset(Constants.OUTPUT_PATH);
-
-  final Trimmer trimmer = Trimmer();
-
   void setTimeLimit(dynamic value) async {
     limit = value;
-    // await player.setAsset(Constants.AUDIO_PATH);
-    // await player.setClip(start: Duration(seconds: 10), end: Duration(seconds: 20));
     notifyListeners();
   }
 
-  void setStartEndTime(int _inputType, double inputValue) {
-    _inputType == 0 ? startTime = inputValue : endTime = inputValue;
-    notifyListeners();
-  }
-
-  void setPlayPause(bool playing) {
-    isPlaying = playing;
-    notifyListeners();
-  }
-
-  Future<void> videoOutput() async {
-    loading = true;
-    notifyListeners();
-    String _commandToExecute =
-        '-r 15 -f mp3 -i ${Constants.AUDIO_PATH} -f image2 -i ${Constants.IMAGE_PATH} -pix_fmt yuv420p -y ${Constants.OUTPUT_PATH}';
-
-    await trimmer
-        .saveTrimmedVideo(
-            startValue: startTime,
-            endValue: endTime,
-            customVideoFormat: '.mp4')
-        .then((value) {
-          print(value);
-          loading = false;
-          notifyListeners();
-    });
-  }
-
-  Future<void> videoMerger() async {
+  Future<void> mergeIntoVideo() async {
     final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
     loading = true;
     String timeLimit = '00:00:';
@@ -63,12 +25,29 @@ class MergeProvider with ChangeNotifier {
       else
         timeLimit = timeLimit + limit.toString();
 
+      /// To combine audio with video
+      ///
+      /// Merging video and audio, with audio re-encoding
+      /// -c:v copy -c:a aac
+      ///
+      /// Copying the audio without re-encoding
+      /// -c copy
+      ///
+      /// Replacing audio stream
+      /// -c:v copy -c:a aac -map 0:v:0 -map 1:a:0
       String commandToExecute =
-          '-r 15 -f mp3 -i ${Constants.AUDIO_PATH} -f image2 -i ${Constants.IMAGE_PATH} -pix_fmt yuv420p -t $timeLimit -y ${Constants.OUTPUT_PATH}';
+          '-r 15 -f mp4 -i ${Constants.VIDEO_PATH} -f mp3 -i ${Constants.AUDIO_PATH} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -t $timeLimit -y ${Constants.OUTPUT_PATH}';
 
+      /// To combine audio with image
+      // String commandToExecute =
+      //     '-r 15 -f mp3 -i ${Constants.AUDIO_PATH} -f image2 -i ${Constants.IMAGE_PATH} -pix_fmt yuv420p -t $timeLimit -y ${Constants.OUTPUT_PATH}';
+
+      /// To combine audio with gif
       // String commandToExecute = '-r 15 -f mp3 -i ${Constants
       //     .AUDIO_PATH} -f gif -re -stream_loop 5 -i ${Constants.GIF_PATH} -y ${Constants
       //     .OUTPUT_PATH}';
+
+      /// To combine audio with sequence of images
       // String commandToExecute = '-r 30 -pattern_type sequence -start_number 01 -f image2 -i ${Constants
       //     .IMAGES_PATH} -f mp3 -i ${Constants.AUDIO_PATH} -y ${Constants
       //     .OUTPUT_PATH}';

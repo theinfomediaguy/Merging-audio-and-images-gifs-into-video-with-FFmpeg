@@ -33,7 +33,6 @@ dependencies:
 
   syncfusion_flutter_sliders: ^19.2.60
   video_trimmer: ^0.5.4
-  just_audio: ^0.9.11
 
 dev_dependencies:
   flutter_test:

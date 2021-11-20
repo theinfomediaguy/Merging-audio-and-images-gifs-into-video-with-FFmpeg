@@ -1,4 +1,4 @@
-package com.ebiztrait.image_music
+package com.yt.image_music
 
 import io.flutter.embedding.android.FlutterActivity
 
